@@ -1,10 +1,11 @@
 import os
+from pathlib import Path
 import pickle
-from tqdm import tqdm
+from tqdm import tqdm                   # type: ignore
 
-import numpy as np
-import torch
-import matplotlib.pyplot as plt
+import numpy as np                      # type: ignore
+import torch                            # type: ignore
+import matplotlib.pyplot as plt         # type: ignore
 
 import train
 import preprocessing
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     # 228f6490, 508bd3b6, 2281f1f4, ecdecbb3
     split = input('Enter which split you want to find the task in (training, evaluation, test): ')
     task_name = input('Enter which task you want to analyze (eg. 272f95fa): ')
-    folder = task_name + '/'
+    folder = 'output/analyze/' + task_name + '/'        #00d62c1b
     print('Performing a training run on task', task_name,
           'and placing the results in', folder)
     os.makedirs(folder, exist_ok=True)
@@ -181,7 +182,9 @@ if __name__ == "__main__":
         if len(orig_shape) == 3:
             tensor = np.reshape(tensor, (-1, orig_shape[-1]))
             U, S, Vh = np.linalg.svd(tensor)  # Get top 3 principal components
-            for component_num in range(3):
+            num_components_found = U.shape[1]
+            
+            for component_num in range(num_components_found):
                 component = np.reshape(U[:,component_num], orig_shape[:-1])
                 component = component / np.max(np.abs(component))
                 strength = S[component_num] / tensor.shape[0]  # Calculate component strength
