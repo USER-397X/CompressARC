@@ -1,6 +1,4 @@
 import os
-from pathlib import Path
-import pickle
 from tqdm import tqdm                   # type: ignore
 
 import numpy as np                      # type: ignore
@@ -10,11 +8,10 @@ import matplotlib.pyplot as plt         # type: ignore
 import train
 import preprocessing
 import arc_compressor
-import initializers
 import multitensor_systems
 import layers
 import solution_selection
-import visualization
+import utils.visualization as visualization
 
 
 """
@@ -40,9 +37,12 @@ if __name__ == "__main__":
 
     # Some interesting tasks: 272f95fa, 6d75e8bb, 6cdd2623, 41e4d17e, 2bee17df
     # 228f6490, 508bd3b6, 2281f1f4, ecdecbb3
-    split = input('Enter which split you want to find the task in (training, evaluation, test): ')
-    task_name = input('Enter which task you want to analyze (eg. 272f95fa): ')
-    folder = 'output/analyze/' + task_name + '/'        #00d62c1b
+    # split = input('Enter which split you want to find the task in (training, evaluation, test): ')
+    # task_name = input('Enter which task you want to analyze (eg. 272f95fa): ')
+    split = 'training'
+    task_name = '00d62c1b'
+    
+    folder = 'output/analyze/' + task_name + '/'        
     print('Performing a training run on task', task_name,
           'and placing the results in', folder)
     os.makedirs(folder, exist_ok=True)
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     visualization.plot_problem(train_history_logger)
 
     # Perform training for 1500 iterations
-    n_iterations = 1500
+    n_iterations = 1000
     for train_step in tqdm(range(n_iterations)):
         train.take_step(task, model, optimizer, train_step, train_history_logger)
         
@@ -181,7 +181,7 @@ if __name__ == "__main__":
         orig_shape = tensor.shape
         if len(orig_shape) == 3:
             tensor = np.reshape(tensor, (-1, orig_shape[-1]))
-            U, S, Vh = np.linalg.svd(tensor)  # Get top 3 principal components
+            U, S, Vh = np.linalg.svd(tensor, full_matrices=False)  # Get top 3 principal components
             num_components_found = U.shape[1]
             
             for component_num in range(num_components_found):

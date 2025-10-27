@@ -9,25 +9,12 @@ tracks each GPU's usage and greedily schedules jobs on the GPUs to fit under eac
 # We run 2000 steps per task at optimal puzzle parallelization under memory constraint.
 # We have changed layers.direction_share() to make it run faster, and got something like a 5-10% speedup.
 
-import os
-import sys
 import time
 import json
-import importlib
 import multiprocessing
-from multiprocessing import Pool
 
-import numpy as np
-import torch
+import torch                #type: ignore
 
-import preprocessing
-import train
-import arc_compressor
-import initializers
-import multitensor_systems
-import layers
-import solution_selection
-import visualization
 import solve_task
 
 # Getting all the task names, setting defaults and constants
@@ -124,7 +111,7 @@ if __name__ == '__main__':
     n_gpus = torch.cuda.device_count()
 
     # Find all the puzzle names
-    split = "training"
+    split = "training_small"
     with open(f'dataset/arc-agi_{split}_challenges.json', 'r') as f:
         problems = json.load(f)
     task_names = list(problems.keys())

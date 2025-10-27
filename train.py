@@ -5,11 +5,8 @@ import torch
 
 import preprocessing
 import arc_compressor
-import initializers
-import multitensor_systems
-import layers
 import solution_selection
-import visualization
+import utils.visualization as visualization
 
 
 """
@@ -45,6 +42,24 @@ def take_step(task, model, optimizer, train_step, train_history_logger):
         train_history_logger (Logger): A logger object used for logging the forward pass outputs
                 of the model, as well as accuracy and other things.
     """
+
+    # Added
+
+    # initial_capacity = model.initial_kl_threshold
+    # final_capacity = 0.0 
+    # decay_steps = 500
+
+    # decay_progress = min(train_step / decay_steps, 1.0)
+    # current_capacity = initial_capacity + (final_capacity - initial_capacity) * decay_progress
+
+    # for dims in model.multitensor_system:
+    #         # Use the 'dims' key to get the specific tensor from the MultiTensor
+    #         tensor_at_dims = model.target_capacities[dims]
+            
+    #         # Update its value in-place
+    #         tensor_at_dims.data.fill_(current_capacity)   
+
+    # Added
 
     optimizer.zero_grad()
     logits, x_mask, y_mask, KL_amounts, KL_names, = model.forward()
@@ -124,7 +139,7 @@ if __name__ == "__main__":
     start_time = time.time()
 
     task_nums = list(range(400))
-    split = "training"  # "training", "evaluation, or "test"
+    split = "training_small"  # "training", "training_small", "evaluation, or "test" 
 
     # Preprocess all tasks, make models, optimizers, and loggers. Make plots.
     tasks = preprocessing.preprocess_tasks(split, task_nums)
@@ -155,3 +170,4 @@ if __name__ == "__main__":
     # Write down how long it all took
     with open('timing_result.txt', 'w') as f:
         f.write("Time elapsed in seconds: " + str(time.time() - start_time))
+

@@ -1,7 +1,4 @@
 import json
-from typing import Tuple
-import argparse
-import sys
 
 def score_submission(submission_file_name, solutions_file_name, include_task_scores=False) -> dict:
     """

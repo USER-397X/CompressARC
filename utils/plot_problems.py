@@ -1,13 +1,7 @@
-import numpy as np
-import torch
 
 import preprocessing
-import arc_compressor
-import initializers
-import multitensor_systems
-import layers
 import solution_selection
-import visualization
+import utils.visualization as visualization
 
 """
 Plot all of the ARC-AGI problems in the split.

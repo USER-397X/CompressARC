@@ -1,2 +1,4 @@
 plots/
 output/
+__pycache__/
+dataset/

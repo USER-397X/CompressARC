@@ -37,6 +37,7 @@ class Logger:
         self.solution_contributions_log = []
         self.solution_picks_history = []
 
+                                    
     def log(self, train_step, logits, x_mask, y_mask, KL_amounts, KL_names, total_KL, reconstruction_error, loss):
         """Logs training progress and tracks solutions from one forward pass."""
         if train_step == 0:
