@@ -37,13 +37,10 @@ class ARCCompressor:
         The weights are symmetrized such that swapping the x and y dimension ordering should
         make the output's dimension ordering also swapped, for the same weights. This may not
         be exactly correct since symmetrizing all operations is difficult.
-        Args:
+        Args:   
             task (preprocessing.Task): The task which the model is to be made for solving.
         """
         self.multitensor_system = task.multitensor_system
-
-        # Define initial KL threshold 
-        self.initial_kl_threshold = 1.0
 
         # Initialize weights
         initializer = initializers.Initializer(self.multitensor_system, self.channel_dim_fn)
@@ -52,17 +49,9 @@ class ARCCompressor:
         self.decode_weights = initializer.initialize_multilinear([self.decoding_dim, self.channel_dim_fn])
         initializer.symmetrize_xy(self.decode_weights)
 
+        
         self.target_capacities = initializer.initialize_multizeros([self.decoding_dim])
         
-        # Now, iterate using the multitensor_system and update each tensor
-        # self.multitensor_system is the iterator that yields valid 'dims'
-        for dims in self.multitensor_system:
-            # Use the 'dims' to get the specific tensor
-            tensor_at_dims = self.target_capacities[dims]
-            
-            # Update the tensor's data in-place
-            tensor_at_dims.data.fill_(self.initial_kl_threshold)
-
         self.share_up_weights = []
         self.share_down_weights = []
         self.softmax_weights = []

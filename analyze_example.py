@@ -42,10 +42,17 @@ if __name__ == "__main__":
     split = 'training'
     task_name = '00d62c1b'
     
-    folder = 'output/analyze/' + task_name + '/'        
+    folder = 'output' + '/' + task_name + '/'
+    plots_folder = folder + '/' + 'plots'
+    KL_folder = folder + '/' + 'KL'
+    PCA_folder = folder + '/' + 'PCA'
+
     print('Performing a training run on task', task_name,
           'and placing the results in', folder)
     os.makedirs(folder, exist_ok=True)
+    os.makedirs(KL_folder, exist_ok=True)
+    os.makedirs(plots_folder, exist_ok=True)
+    os.makedirs(PCA_folder, exist_ok=True)    
 
     # Preprocess the task, set up the training
     task = preprocessing.preprocess_tasks(split, [task_name])[0]
@@ -54,20 +61,20 @@ if __name__ == "__main__":
     train_history_logger = solution_selection.Logger(task)
     visualization.plot_problem(train_history_logger)
 
-    # Perform training for 1500 iterations
+    # Perform training for 1000 iterations
     n_iterations = 1000
     for train_step in tqdm(range(n_iterations)):
         train.take_step(task, model, optimizer, train_step, train_history_logger)
         
-        # Plot solutions every 50 steps
-        if (train_step+1) % 50 == 0:
+        # Plot solutions every 100 steps
+        if (train_step+1) % 100 == 0:
             visualization.plot_solution(train_history_logger,
-                fname=folder + task_name + '_at_' + str(train_step+1) + ' steps.png')
-            visualization.plot_solution(train_history_logger,
-                fname=folder + task_name + '_at_' + str(train_step+1) + ' steps.pdf')
+                fname=plots_folder + '/' + task_name + '_at_' + str(train_step+1) + ' steps.png')
+            # visualization.plot_solution(train_history_logger,
+                # fname=plots_folder + task_name + '_at_' + str(train_step+1) + ' steps.pdf')
 
     # Save the metrics, model weights, and learned representations.
-    np.savez(folder + task_name + '_KL_curves.npz',
+    np.savez(KL_folder + '/' + task_name + '_KL_curves.npz',
              KL_curves={key:np.array(val) for key, val in train_history_logger.KL_curves.items()},
              reconstruction_error_curve=np.array(train_history_logger.reconstruction_error_curve),
              multiposteriors=model.multiposteriors,
@@ -75,7 +82,7 @@ if __name__ == "__main__":
              decode_weights=model.decode_weights)
 
     # Load the metrics, model weights, and learned representations.
-    stored_data = np.load(folder + task_name + '_KL_curves.npz', allow_pickle=True)
+    stored_data = np.load(KL_folder + '/' + task_name + '_KL_curves.npz', allow_pickle=True)
     KL_curves = stored_data['KL_curves'][()]
     reconstruction_error_curve = stored_data['reconstruction_error_curve']
     multiposteriors = stored_data['multiposteriors'][()]
@@ -126,7 +133,7 @@ if __name__ == "__main__":
     plt.xlabel('step')
     plt.ylabel('KL contribution')
     ax.grid(which='both', linestyle='-', linewidth='0.5', color='gray')
-    plt.savefig(folder + task_name + '_KL_components.png', bbox_inches='tight')
+    plt.savefig(KL_folder + '/' + task_name + '_KL_components.png', bbox_inches='tight')
     plt.close()
 
     # Plot the KL vs reconstruction error
@@ -143,7 +150,7 @@ if __name__ == "__main__":
     plt.xlabel('step')
     plt.ylabel('total KL or reconstruction error')
     ax.grid(which='both', linestyle='-', linewidth='0.5', color='gray')
-    plt.savefig(folder + task_name + '_KL_vs_reconstruction.png', bbox_inches='tight')
+    plt.savefig(KL_folder + '/' + task_name + '_KL_vs_reconstruction.png', bbox_inches='tight')
     plt.close()
 
     # Get the learned representation tensors
@@ -248,7 +255,7 @@ if __name__ == "__main__":
                 # Standard tick labels for height and width axes
 
                 ax.set_title('component' + str(component_num) + ', strength = ' + str(float(strength)))
-                plt.savefig(folder + task_name + '_' + tensor_name + '_component_' + str(component_num) + '.png', bbox_inches='tight')
+                plt.savefig(PCA_folder + '/' + task_name + '_' + tensor_name + '_component_' + str(component_num) + '.png', bbox_inches='tight')
                 plt.close()
 
         # Plot an ({example, color, direction}, x, y) tensor with subplots
@@ -293,7 +300,7 @@ if __name__ == "__main__":
                 plt.subplots_adjust(wspace=1)
                 fig.suptitle('component ' + str(component_num) + ', strength = ' + str(float(strength)))
                 plt.subplots_adjust(top=1.4)
-                plt.savefig(folder + task_name + '_' + tensor_name + '_component_' + str(component_num) + '.png', bbox_inches='tight')
+                plt.savefig(PCA_folder + '/' + task_name + '_' + tensor_name + '_component_' + str(component_num) + '.png', bbox_inches='tight')
                 plt.close()
 
 

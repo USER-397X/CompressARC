@@ -68,7 +68,7 @@ def add_residual(layer):
         return x + z
     return layer_with_residual
 
-def channel_layer(target_capacity, posterior):
+def channel_layer(target_capacity, posterior, kl_threshold=1.0):
     """
     Assume that z comes from some prior distribution, measure the KL divergence to the
     posterior, and give a sample z from the posterior.
@@ -127,8 +127,20 @@ def channel_layer(target_capacity, posterior):
     # Calculate the KL directly instead of using the AWGN channel capacity formula, because we didn't
     # actually send a signal of variance equal to signal, so the AWGN channel capacity formula would be wrong
     # here.
-    KL = 0.5*(noise_var + signal_var*normalized_mean**2 - 1) + desired_local_capacity/dimensionality
-    return z, KL
+    raw_KL = 0.5*(noise_var + signal_var*normalized_mean**2 - 1) + desired_local_capacity/dimensionality
+
+    # Ensure threshold is a tensor on the correct device for comparison
+    kl_threshold_tensor = torch.tensor(kl_threshold)
+    
+    # When raw_KL is below threshold, use a quadratic function that tapers off
+    # f(x) = x^2 / threshold
+    # This is continuous at x = threshold and has a gradient of 0 at x = 0
+    tapered_KL = (raw_KL ** 2) / kl_threshold_tensor
+    
+    # Select the correct KL value based on the threshold
+    final_KL = torch.where(raw_KL < kl_threshold_tensor, tapered_KL, raw_KL)
+
+    return z, final_KL
 
 def decode_latents(target_capacities, decode_weights, multiposteriors):
     """
