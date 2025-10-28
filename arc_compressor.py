@@ -103,6 +103,19 @@ class ARCCompressor:
 
         self.weights_list = initializer.weights_list
 
+        x_mod = np.zeros([task.n_examples, task.n_x, 2])
+        y_mod = np.zeros([task.n_examples, task.n_y, 2])
+        for example_num in range(task.n_examples):
+            max_length = max(task.shapes[example_num][0][0], task.shapes[example_num][1][0])
+            for in_out_mode in range(2):
+                x_mod[example_num,max_length:,in_out_mode] = -1000
+            max_length = max(task.shapes[example_num][0][1], task.shapes[example_num][1][1])
+            for in_out_mode in range(2):
+                y_mod[example_num,max_length:,in_out_mode] = -1000
+        
+        # Store them on the default device ('cuda')
+        self.x_mask_modifier = torch.from_numpy(x_mod).to(torch.get_default_dtype())
+        self.y_mask_modifier = torch.from_numpy(y_mod).to(torch.get_default_dtype())
 
     def forward(self):
         """
@@ -166,7 +179,9 @@ class ARCCompressor:
         y_mask = layers.affine(x[[1, 0, 0, 0, 1]], self.mask_weights, use_bias=True)
 
         # Postprocessing
-        x_mask, y_mask = layers.postprocess_mask(self.multitensor_system.task, x_mask, y_mask)
+        x_mask, y_mask = layers.postprocess_mask(
+            x_mask, y_mask, self.x_mask_modifier, self.y_mask_modifier
+        )
 
         return output, x_mask, y_mask, KL_amounts, KL_names
 

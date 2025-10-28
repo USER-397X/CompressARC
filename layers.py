@@ -1,7 +1,7 @@
 import itertools
 
-import numpy as np
-import torch
+import numpy as np      #type: ignore
+import torch            #type: ignore
 
 import multitensor_systems
 
@@ -539,7 +539,7 @@ def nonlinear(dims, x):
     """
     return torch.nn.functional.silu(x)
 
-def postprocess_mask(task, x_mask, y_mask):
+def postprocess_mask(x_mask, y_mask, x_mask_modifier, y_mask_modifier):
     """
     Apply postprocessing to the masks outputted by the network. If masks are already determined
     by the task because the output shapes follow a known hardcoded structure, then enforce the
@@ -555,16 +555,6 @@ def postprocess_mask(task, x_mask, y_mask):
         Tensor: Modified y mask that fits the task's structure.
     """
 
-    # Make an additive modifier mask that has large negative values for out of bounds pixels.
-    x_mask_modifier = np.zeros([task.n_examples, task.n_x, 2])
-    y_mask_modifier = np.zeros([task.n_examples, task.n_y, 2])
-    for example_num in range(task.n_examples):
-        max_length = max(task.shapes[example_num][0][0], task.shapes[example_num][1][0])
-        for in_out_mode in range(2):
-            x_mask_modifier[example_num,max_length:,in_out_mode] = -1000
-        max_length = max(task.shapes[example_num][0][1], task.shapes[example_num][1][1])
-        for in_out_mode in range(2):
-            y_mask_modifier[example_num,max_length:,in_out_mode] = -1000
-    x_mask = x_mask+torch.from_numpy(x_mask_modifier).to(x_mask.device).to(x_mask.dtype)
-    y_mask = y_mask+torch.from_numpy(y_mask_modifier).to(y_mask.device).to(y_mask.dtype)
+    x_mask = x_mask + x_mask_modifier.to(x_mask.device).to(x_mask.dtype)
+    y_mask = y_mask + y_mask_modifier.to(y_mask.device).to(y_mask.dtype)
     return x_mask, y_mask

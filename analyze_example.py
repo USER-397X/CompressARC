@@ -55,7 +55,7 @@ if __name__ == "__main__":
     visualization.plot_problem(train_history_logger)
 
     # Perform training for 1500 iterations
-    n_iterations = 1000
+    n_iterations = 100
     for train_step in tqdm(range(n_iterations)):
         train.take_step(task, model, optimizer, train_step, train_history_logger)
         
