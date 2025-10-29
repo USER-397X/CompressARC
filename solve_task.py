@@ -1,36 +1,25 @@
+import sys
 import time
 import json
+import importlib
 import gc
 import traceback
-
 import torch
 
-import preprocessing
+# This little block of code does "import preprocessing" but avoids a name collision with another module
+module_path = "/kaggle/input/publiccompressarc/preprocessing.py"
+module_name = "preprocessing"
+spec = importlib.util.spec_from_file_location(module_name, module_path)
+preprocessing = importlib.util.module_from_spec(spec)
+sys.modules[module_name] = preprocessing
+spec.loader.exec_module(preprocessing)
+
 import train
 import arc_compressor
 import solution_selection
 
-"""
-A script that solves one puzzle, to be imported and used with parallel_train.py and multiprocessing.
-"""
 
 def solve_task(task_name, split, time_limit, n_train_iterations, gpu_id, memory_dict, solutions_dict, error_queue):
-    """
-    Solves a puzzle.
-    Args:
-        task_name (str): The name of the puzzle to solve.
-        split (str): 'training', 'evaluation', or 'test'
-        time_limit (float): An end time that will cause training to exit early if reached.
-        n_train_iterations (int): The number of iterations to train for.
-        gpu_id (int): The GPU number to run the solver on.
-        memory_dict (multiprocessing.Dict[str, int]): An inter-process shared dict that we
-            can store the amount of memory taken by this job in.
-        solutions_dict (multiprocessing.Dict[str, list[Dict[str, list[list[int]]]]]): An
-            inter-process shared dict that we can store the solution in.
-        error_queue (multiprocessing.Queue[Exception]): An inter-process shared queue to
-            put errors in when an exception occurs.
-    """
-
     try:  # Error catching block that puts errors on the error_queue
 
         torch.set_default_device('cuda')
@@ -38,7 +27,7 @@ def solve_task(task_name, split, time_limit, n_train_iterations, gpu_id, memory_
         torch.cuda.reset_peak_memory_stats()  # Measure the memory used.
 
         # Get the task
-        with open(f'dataset/arc-agi_{split}_challenges.json', 'r') as f:
+        with open(f'../input/arc-prize-2025/arc-agi_{split}_challenges.json', 'r') as f:
             problems = json.load(f)
         task = preprocessing.Task(task_name, problems[task_name], None)
         del problems
