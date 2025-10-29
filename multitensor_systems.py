@@ -1,11 +1,3 @@
-import numpy as np
-import torch
-
-
-np.random.seed(0)
-torch.manual_seed(0)
-
-
 NUM_DIMENSIONS = 5  # We have 5 dimensions: examples, colors, directions, x, y
 
 class MultiTensorSystem:

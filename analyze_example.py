@@ -28,8 +28,6 @@ the task code, and it will:
 
 # For some reason trying to set the seed doesn't actually fix results.
 # Just run things over and over again until you see desired interesting behaviors.
-np.random.seed(0)
-torch.manual_seed(0)
 torch.set_default_dtype(torch.float32)
 torch.set_default_device('cuda')
 

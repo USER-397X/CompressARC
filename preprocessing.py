@@ -3,8 +3,6 @@ import numpy as np
 import torch
 import multitensor_systems
 
-np.random.seed(0)
-torch.manual_seed(0)
 
 class Task:
     """

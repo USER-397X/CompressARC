@@ -1,21 +1,17 @@
 import time
 
-import numpy as np                  #type: ignore
 import torch                        #type: ignore 
 import torch.nn.functional as F     #type: ignore
 
 import preprocessing
 import arc_compressor
 import solution_selection
-import utils.visualization as visualization
 
 
 """
 This file trains a model for every ARC-AGI task in a split.
 """
 
-np.random.seed(0)
-torch.manual_seed(0)
 
 
 def vectorized_mask_select_logprobs(mask, length):
@@ -236,7 +232,6 @@ if __name__ == "__main__":
         optimizer = torch.optim.Adam(model.weights_list, lr=0.01, betas=(0.5, 0.9))
         optimizers.append(optimizer)
         train_history_logger = solution_selection.Logger(task)
-        visualization.plot_problem(train_history_logger)
         train_history_loggers.append(train_history_logger)
 
     # Get the solution hashes so that we can check for correctness
@@ -247,7 +242,6 @@ if __name__ == "__main__":
         n_iterations = 2000
         for train_step in range(n_iterations):
             take_step(task, model, optimizer, train_step, train_history_logger)
-        visualization.plot_solution(train_history_logger)
         solution_selection.save_predictions(train_history_loggers[:i+1])
         solution_selection.plot_accuracy(true_solution_hashes)
 

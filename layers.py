@@ -10,9 +10,6 @@ This file contains all of the layers of our network. The architecture which puts
 together is found in arc_compressor.py.
 """
 
-np.random.seed(0)
-torch.manual_seed(0)
-
 
 @multitensor_systems.multify
 def normalize(dims, x, debias=True):

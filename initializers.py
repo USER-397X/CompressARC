@@ -3,9 +3,6 @@ import torch
 import multitensor_systems
 
 
-np.random.seed(0)
-torch.manual_seed(0)
-
 
 class Initializer:
     def __init__(self, multitensor_system, channel_dim_fn):
