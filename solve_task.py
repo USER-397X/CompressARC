@@ -7,12 +7,14 @@ import traceback
 import torch
 
 # This little block of code does "import preprocessing" but avoids a name collision with another module
-module_path = "/kaggle/input/speedcompressarc/preprocessing.py"
-module_name = "preprocessing"
-spec = importlib.util.spec_from_file_location(module_name, module_path)
-preprocessing = importlib.util.module_from_spec(spec)
-sys.modules[module_name] = preprocessing
-spec.loader.exec_module(preprocessing)
+# module_path = "/kaggle/input/speedcompressarc/preprocessing.py"
+# module_name = "preprocessing"
+# spec = importlib.util.spec_from_file_location(module_name, module_path)
+# preprocessing = importlib.util.module_from_spec(spec)
+# sys.modules[module_name] = preprocessing
+# spec.loader.exec_module(preprocessing)
+
+import preprocessing
 
 import train
 import arc_compressor
@@ -27,7 +29,8 @@ def solve_task(task_name, split, time_limit, n_train_iterations, gpu_id, memory_
         torch.cuda.reset_peak_memory_stats()  # Measure the memory used.
 
         # Get the task
-        with open(f'../input/arc-prize-2025/arc-agi_{split}_challenges.json', 'r') as f:
+        # with open(f'../input/arc-prize-2025/arc-agi_{split}_challenges.json', 'r') as f:
+        with open(f'dataset/arc-agi_{split}_challenges.json', 'r') as f:
             problems = json.load(f)
         task = preprocessing.Task(task_name, problems[task_name], None)
         del problems
