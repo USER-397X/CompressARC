@@ -7,7 +7,7 @@ import traceback
 import torch
 
 # This little block of code does "import preprocessing" but avoids a name collision with another module
-module_path = "/kaggle/input/publiccompressarc/preprocessing.py"
+module_path = "/kaggle/input/speedcompressarc/preprocessing.py"
 module_name = "preprocessing"
 spec = importlib.util.spec_from_file_location(module_name, module_path)
 preprocessing = importlib.util.module_from_spec(spec)
