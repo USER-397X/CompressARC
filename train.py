@@ -149,7 +149,7 @@ if __name__ == "__main__":
     for task in tasks:
         model = arc_compressor.ARCCompressor(task)
         models.append(model)
-        optimizer = torch.optim.Adam(model.weights_list, lr=0.01, betas=(0.5, 0.9))
+        optimizer = torch.optim.AdamW(model.weights_list, lr=0.01, betas=(0.5, 0.9))
         optimizers.append(optimizer)
         train_history_logger = solution_selection.Logger(task)
         visualization.plot_problem(train_history_logger)
